@@ -1,3 +1,10 @@
+= Info
+
+* CTU username: saframa6
+* course: NI-PYT
+* semester: winter 2020/2021
+* testing repo for this task: https://github.com/TaIos/comitee-test
+
 = Committee I.
 :toc:
 :note-caption: :information_source:
