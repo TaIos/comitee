@@ -6,6 +6,10 @@ def load_cfg(data):
     """Load and validate configuration file and return it"""
     config = configparser.ConfigParser()
     config.read_string(data)
+    if not config.has_option("github", "token"):
+        raise click.BadParameter("Configuration file does not contain github token.")
+    if not config.has_option("committee", "context"):
+        raise click.BadParameter("Configuration file does not contain comittee context context.")
     return config
 
 
