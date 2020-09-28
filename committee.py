@@ -21,6 +21,16 @@ def validate_reposlug(ctx, param, value):
         raise click.BadParameter(f"Reposlug \"{value}\" is not valid!")
 
 
+def load_rules(cfg):
+    """Load rules from configuration object and return them as dictionary by rule name"""
+    res = {}
+    for section_name in cfg.sections():
+        sp = section_name.split(":")
+        if len(sp) == 2 and sp[0] == "rule":
+            res[sp[1]] = cfg[section_name]
+    return res
+
+
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
