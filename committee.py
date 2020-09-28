@@ -1,5 +1,6 @@
 import click
 import configparser
+import requests
 
 
 def load_cfg(data):
@@ -31,6 +32,20 @@ def load_rules(cfg):
     return res
 
 
+def create_github_session(cfg):
+    """Create and return GitHub session authorized with token in configuration object"""
+    session = requests.Session()
+    token = cfg["github"]["token"]
+
+    def token_auth(req):
+        req.headers["Authorization"] = f"token {token}"
+        return req
+
+    session.auth = token_auth
+    session.get(f"https://api.github.com").raise_for_status()
+    return session
+
+
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
@@ -48,6 +63,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
     cfg = load_cfg(config.read())
     rules = load_rules(cfg)
+    session = create_github_session(cfg)
 
     # TODO
     for name, rule in rules.items():
