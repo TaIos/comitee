@@ -1,4 +1,12 @@
 import click
+import configparser
+
+
+def load_cfg(data):
+    """Load and validate configuration file and return it"""
+    config = configparser.ConfigParser()
+    config.read_string(data)
+    return config
 
 
 def validate_reposlug(ctx, param, value):
@@ -24,7 +32,7 @@ def validate_reposlug(ctx, param, value):
 @click.argument("REPOSLUG", required=True, callback=validate_reposlug)
 def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
-    print(f"{config}, {author}, {path}, {ref}, {force}, {dry_run}, {reposlug}")
+    cfg = load_cfg(config.read())
 
 
 if __name__ == "__main__":
