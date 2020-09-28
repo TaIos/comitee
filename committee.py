@@ -47,6 +47,20 @@ def load_rules(cfg):
 def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
     cfg = load_cfg(config.read())
+    rules = load_rules(cfg)
+
+    # TODO
+    for name, rule in rules.items():
+        if name == "polite-message":
+            pass
+        elif name == "keep-license":
+            pass
+        elif name == "no-dummy-files":
+            pass
+        elif name == "atomic-commits":
+            pass
+        else:
+            raise click.BadParameter(f"Rule '{name}' in configuration file is not supported.")
 
 
 if __name__ == "__main__":
