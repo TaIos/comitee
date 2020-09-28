@@ -9,7 +9,7 @@ def load_cfg(data):
     if not config.has_option("github", "token"):
         raise click.BadParameter("Configuration file does not contain github token.")
     if not config.has_option("committee", "context"):
-        raise click.BadParameter("Configuration file does not contain comittee context context.")
+        raise click.BadParameter("Configuration file does not contain comittee context.")
     return config
 
 
