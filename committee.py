@@ -53,7 +53,7 @@ def create_github_session(cfg):
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
-              type=click.File('r'))
+              type=click.File('r'), default="committee.cfg")
 @click.option("-a", "--author", help="GitHub login or email address of author for checking commits.", metavar="AUTHOR")
 @click.option("-p", "--path", help="Only commits containing this file path will be checked.", metavar="PATH")
 @click.option("-r", "--ref", help="SHA or branch to check commits from (default is the default branch).", metavar="REF")
