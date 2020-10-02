@@ -23,11 +23,15 @@ def validate_reposlug(ctx, param, value):
 
 
 def load_rules(cfg):
-    """Load rules from configuration object and return them as dictionary by rule name"""
+    """Load and validate rules from configuration object and return them as dictionary by rule name"""
     res = {}
     for section_name in cfg.sections():
         sp = section_name.split(":")
         if len(sp) == 2 and sp[0] == "rule":
+            if not cfg.has_option(section_name, "text"):
+                raise click.BadParameter(f"Rule {section_name} does not contain mandatory 'text' attribute.")
+            if not cfg.has_option(section_name, "type"):
+                raise click.BadParameter(f"Rule {section_name} does not contain mandatory 'type' attribute.")
             res[sp[1]] = cfg[section_name]
     return res
 
