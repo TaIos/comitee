@@ -60,12 +60,17 @@ def create_auth_github_session(cfg):
     return session
 
 
-def fetch_commits(session, reposlug):
+def fetch_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
-        response = session.get(f"https://api.github.com/repos/{owner}/{repo}/commits")
+        response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits{"/" + ref if ref else ""}',
+                               params={"author": author, "path": path})
         response.raise_for_status()
-        return response
+
+        # response can be either one commit (json object) or multiple commits (json array)
+        js = response.json()
+        return js if isinstance(js, list) else [js]
+
     except requests.HTTPError:
         click.BadParameter(f"Failed to retrieve commits from repository {reposlug}.")
 
@@ -74,9 +79,12 @@ def fetch_commits(session, reposlug):
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
               type=click.File('r'), default="committee.cfg")
-@click.option("-a", "--author", help="GitHub login or email address of author for checking commits.", metavar="AUTHOR")
-@click.option("-p", "--path", help="Only commits containing this file path will be checked.", metavar="PATH")
-@click.option("-r", "--ref", help="SHA or branch to check commits from (default is the default branch).", metavar="REF")
+@click.option("-a", "--author", help="GitHub login or email address of author for checking commits.", metavar="AUTHOR",
+              default=None)
+@click.option("-p", "--path", help="Only commits containing this file path will be checked.", metavar="PATH",
+              default=None)
+@click.option("-r", "--ref", help="SHA or branch to check commits from (default is the default branch).", metavar="REF",
+              default=None)
 @click.option("-f", "--force", help="Check even if commit has already status with the same context.", is_flag=True,
               default=False)
 @click.option("-o", "--output-format", help="Verbosity level of the output.  [default: commits]",
@@ -88,18 +96,18 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     cfg = load_cfg(config.read())
     rules = load_rules(cfg)
     session = create_auth_github_session(cfg)
-    commits = fetch_commits(session, reposlug)
+    commits = fetch_commits(session, reposlug, author, path, ref)
 
-    for commit in commits.json():
+    for commit in commits:
         violations = []
         for name, rule in rules.items():
             status = OK
             if rule["type"] == "message":
                 status = apply_rule_message(rule, commit["commit"]["message"])
             elif rule["type"] == "path":
-                status = apply_rule_path(rule, session, commit, reposlug)
+                status = apply_rule_path(rule, session, commit["sha"], reposlug)
             elif rule["type"] == "stats":
-                status = apply_rule_stats(rule, session, commit, reposlug)
+                status = apply_rule_stats(rule, session, commit["sha"], reposlug)
             if status != OK:
                 violations.append(name)
 

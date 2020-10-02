@@ -2,9 +2,9 @@ from src.helpers import OK, BAD
 import functools
 
 
-def apply_rule_stats(rule, session, commit, reposlug):
+def apply_rule_stats(rule, session, sha, reposlug):
     owner, repo = reposlug.split("/")
-    response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits/{commit["sha"]}')
+    response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits/{sha}')
     scope, stat, = rule.get("scope", fallback="commit"), rule.get("stat"),
 
     value = 0
