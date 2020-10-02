@@ -5,6 +5,7 @@ import requests
 from rules.apply_rule_message import apply_rule_message
 from rules.apply_rule_path import apply_rule_path
 from rules.apply_rule_stats import apply_rule_stats
+from src.helpers import apply_violations, OK
 
 
 def load_cfg(data):
@@ -72,17 +73,23 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     cfg = load_cfg(config.read())
     rules = load_rules(cfg)
     session = create_github_session(cfg)
+    owner, repo = reposlug.split("/")
+    commits = session.get(f"https://api.github.com/repos/{owner}/{repo}/commits")
 
-    for name, rule in rules.items():
-        if rule["type"] == "message":
-            apply_rule_message(rule, name, session)
-        elif rule["type"] == "path":
-            apply_rule_path(rule, name, session)
-        elif rule["type"] == "stats":
-            apply_rule_stats(rule, name, session)
-        else:
-            raise click.BadParameter(
-                f"Rule '{name}' with type '{rule['type']}' in configuration file is not supported.")
+    for commit in commits.json():
+        violations = []
+        for name, rule in rules.items():
+            status = OK
+            if rule["type"] == "message":
+                status = apply_rule_message(rule, name, session, commit)
+            elif rule["type"] == "path":
+                status = apply_rule_path(rule, name, session, commit)
+            elif rule["type"] == "stats":
+                status = apply_rule_stats(rule, name, session, commit)
+        if status != OK:
+            violations.append(name)
+
+        apply_violations(violations, session, commit)
 
 
 if __name__ == "__main__":

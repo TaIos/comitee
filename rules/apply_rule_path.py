@@ -1,2 +1,3 @@
-def apply_rule_path(rule, name, session):
+def apply_rule_path(rule, name, session, commit):
     print("rule path")
+    return 0
