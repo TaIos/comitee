@@ -18,10 +18,19 @@ def apply_rule_message(rule, name, session, commit):
     return status
 
 
+def case_insensitive(func):
+    def func_wrapper(a, b):
+        return func(a.lower(), b.lower())
+
+    return func_wrapper
+
+
+@case_insensitive
 def __plain(text, substr):
     return OK if text.find(substr) == -1 else BAD
 
 
+@case_insensitive
 def __regex(text, pattern):
     return OK if not re.search(text, pattern) else BAD
 
