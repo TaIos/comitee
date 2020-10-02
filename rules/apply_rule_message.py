@@ -3,17 +3,16 @@ import re
 from src.helpers import OK, BAD
 
 
-def apply_rule_message(rule, name, session, commit):
+def apply_rule_message(rule, message):
     match_type, match_target = rule["match"].split(":")
-    commit_msg = commit["commit"]["message"]
 
     status = OK
     if match_type == "plain":
-        status = __plain(commit_msg, match_target)
+        status = __plain(message, match_target)
     elif match_type == "regex":
-        status = __regex(commit_msg, match_target)
+        status = __regex(message, match_target)
     elif match_type == "wordlist":
-        status = __word_list(commit_msg, match_target)
+        status = __word_list(message, match_target)
 
     return status
 

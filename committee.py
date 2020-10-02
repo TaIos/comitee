@@ -95,11 +95,11 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
         for name, rule in rules.items():
             status = OK
             if rule["type"] == "message":
-                status = apply_rule_message(rule, name, session, commit)
+                status = apply_rule_message(rule, commit["commit"]["message"])
             elif rule["type"] == "path":
-                status = apply_rule_path(rule, name, session, commit)
+                status = apply_rule_path(rule, session, commit, reposlug)
             elif rule["type"] == "stats":
-                status = apply_rule_stats(rule, name, session, commit)
+                status = apply_rule_stats(rule, session, commit)
             if status != OK:
                 violations.append(name)
 
