@@ -24,7 +24,7 @@ def validate_reposlug(ctx, param, value):
     if len(sp) == 2 and len(sp[0]) != 0 and len(sp[1]) != 0:
         return value
     else:
-        raise click.BadParameter(f"Reposlug \"{value}\" is not valid!")
+        raise click.BadParameter(f'Reposlug "{value}" is not valid!')
 
 
 def load_rules(cfg):
@@ -33,15 +33,21 @@ def load_rules(cfg):
     for section_name in cfg.sections():
         sp = section_name.split(":")
         if len(sp) == 2 and sp[0] == "rule":
+
             if not cfg.has_option(section_name, "text"):
-                raise click.BadParameter(f"Rule {section_name} does not contain mandatory 'text' attribute.")
+                raise click.BadParameter("Failed to load the configuration!")
             if not cfg.has_option(section_name, "type"):
-                raise click.BadParameter(f"Rule {section_name} does not contain mandatory 'type' attribute.")
+                raise click.BadParameter("Failed to load the configuration!")
+
+            if cfg[section_name]["type"] == "message":
+                if not cfg[section_name]["type"]:
+                    raise click.BadParameter("Failed to load the configuration!")
+
             res[sp[1]] = cfg[section_name]
     return res
 
 
-def create_github_session(cfg):
+def create_auth_github_session(cfg):
     """Create and return GitHub session authorized with token in configuration object"""
     session = requests.Session()
     token = cfg["github"]["token"]
@@ -51,8 +57,17 @@ def create_github_session(cfg):
         return req
 
     session.auth = token_auth
-    session.get(f"https://api.github.com").raise_for_status()
     return session
+
+
+def fetch_commits(session, reposlug):
+    owner, repo = reposlug.split("/")
+    try:
+        response = session.get(f"https://api.github.com/repos/{owner}/{repo}/commits")
+        response.raise_for_status()
+        return response
+    except requests.HTTPError:
+        click.BadParameter(f"Failed to retrieve commits from repository {reposlug}.")
 
 
 @click.command()
@@ -72,9 +87,8 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
     cfg = load_cfg(config.read())
     rules = load_rules(cfg)
-    session = create_github_session(cfg)
-    owner, repo = reposlug.split("/")
-    commits = session.get(f"https://api.github.com/repos/{owner}/{repo}/commits")
+    session = create_auth_github_session(cfg)
+    commits = fetch_commits(session, reposlug)
 
     for commit in commits.json():
         violations = []
