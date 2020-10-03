@@ -6,15 +6,15 @@ def print_violation(commit, reposlug, output_format):
         return
 
     form = '''
-- {sha}: {message}
-~> {commit_status_change}
-=> {result_for_commit}
+\033[01m-\033[0m {sha}\033[01m:\033[0m {message}
+\033[01m  ~>\033[0m {commit_status_change}
+\033[01m  => \033[0m {result_for_commit}
 '''
 
     params = {
         "sha": click.style(commit["sha"], bold=True),
         "message": click.style("Some message", bold=True),
-        "commit_status_change": click.style("OK", fg="green"),
+        "commit_status_change": "OK",
         "result_for_commit": click.style("SUCCESS - No rules are violated by this commit.", fg="green")
     }
 
