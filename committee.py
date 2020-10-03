@@ -6,6 +6,7 @@ from rules.apply_rule_message import apply_rule_message
 from rules.apply_rule_path import apply_rule_path
 from rules.apply_rule_stats import apply_rule_stats
 from src.helpers import apply_violations, OK
+from src.print_violation import print_violation
 
 
 def load_cfg(data):
@@ -110,7 +111,8 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
                 status = apply_rule_stats(rule, session, commit["sha"], reposlug)
             if status != OK:
                 violations.append(name)
-
+            break
+        print_violation(commit, reposlug, output_format)
         apply_violations(violations, session, commit)
 
 
