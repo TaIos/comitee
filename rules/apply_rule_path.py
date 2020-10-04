@@ -1,5 +1,5 @@
 from rules.apply_rule_message import apply_rule_message
-from src.helpers import OK, BAD
+from src.constants import RULE_OK, RULE_FAIL
 
 
 def apply_rule_path(rule, session, sha, reposlug):
@@ -9,7 +9,7 @@ def apply_rule_path(rule, session, sha, reposlug):
 
     for file in response.json()["files"]:
         if status_wanted in [None, "*", file["status"]]:
-            if apply_rule_message(rule, file["filename"]) != OK:
-                return BAD
+            if apply_rule_message(rule, file["filename"]) != RULE_OK:
+                return RULE_FAIL
 
-    return OK
+    return RULE_OK

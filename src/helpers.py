@@ -1,10 +1,2 @@
-# constants
-OK = 0
-BAD = 1
-
-
-def apply_violations(violations, session, commit):
-    if len(violations) == 0:
-        return
-
-    # TODO
+def sort_and_concat(violations):
+    return ', '.join(sorted(violations))

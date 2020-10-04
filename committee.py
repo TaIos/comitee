@@ -5,8 +5,8 @@ import requests
 from rules.apply_rule_message import apply_rule_message
 from rules.apply_rule_path import apply_rule_path
 from rules.apply_rule_stats import apply_rule_stats
-from src.helpers import apply_violations, OK
-from src.print_violation import print_violation
+from src.apply_validation_result import apply_validation_result
+from src.constants import RULE_OK
 
 
 def load_cfg(data):
@@ -102,18 +102,15 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     for commit in commits:
         violations = []
         for name, rule in rules.items():
-            status = OK
+            status = RULE_OK
             if rule["type"] == "message":
                 status = apply_rule_message(rule, commit["commit"]["message"])
             elif rule["type"] == "path":
                 status = apply_rule_path(rule, session, commit["sha"], reposlug)
             elif rule["type"] == "stats":
                 status = apply_rule_stats(rule, session, commit["sha"], reposlug)
-            if status != OK:
-                violations.append(name)
-            break
-        print_violation(commit, reposlug, output_format)
-        apply_violations(violations, session, commit)
+            violations.append((name, rule, status))
+        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug)
 
 
 if __name__ == "__main__":

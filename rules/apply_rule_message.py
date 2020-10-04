@@ -1,12 +1,12 @@
 import re
 
-from src.helpers import OK, BAD
+from src.constants import RULE_OK, RULE_FAIL
 
 
 def apply_rule_message(rule, message):
     match_type, match_target = rule["match"].split(":")
 
-    status = OK
+    status = RULE_OK
     if match_type == "plain":
         status = __plain(message, match_target)
     elif match_type == "regex":
@@ -26,15 +26,15 @@ def case_insensitive(func):
 
 @case_insensitive
 def __plain(text, substr):
-    return OK if text.find(substr) == -1 else BAD
+    return RULE_OK if text.find(substr) == -1 else RULE_FAIL
 
 
 @case_insensitive
 def __regex(text, pattern):
-    return OK if not re.search(text, pattern) else BAD
+    return RULE_OK if not re.search(text, pattern) else RULE_FAIL
 
 
 def __word_list(text, path):
     with open(path, encoding="utf-8") as file:
         lines = [s.rstrip("\n") for s in file]
-    return BAD if BAD in map(lambda x: __plain(text, x), lines) else OK
+    return RULE_FAIL if RULE_FAIL in map(lambda x: __plain(text, x), lines) else RULE_OK

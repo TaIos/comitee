@@ -1,4 +1,4 @@
-from src.helpers import OK, BAD
+from src.constants import RULE_OK, RULE_FAIL
 import functools
 
 
@@ -14,4 +14,4 @@ def apply_rule_stats(rule, session, sha, reposlug):
         value = functools.reduce(lambda a, b: a + b, map(lambda x: int(x[stat]), response.json()["files"]), 0)
 
     min_allowed, max_allowed = rule.getint("min", fallback=0), rule.getint("max", fallback=value)
-    return OK if min_allowed <= value <= max_allowed else BAD
+    return RULE_OK if min_allowed <= value <= max_allowed else RULE_FAIL
