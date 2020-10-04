@@ -1,4 +1,4 @@
-from rules.apply_rule_message import apply_rule_message
+from src.rules.apply_rule_message import apply_rule_message
 from src.constants import RULE_OK, RULE_FAIL
 
 

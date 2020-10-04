@@ -2,11 +2,11 @@ import click
 import configparser
 import requests
 
-from rules.apply_rule_message import apply_rule_message
-from rules.apply_rule_path import apply_rule_path
-from rules.apply_rule_stats import apply_rule_stats
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK
+from src.rules.apply_rule_message import apply_rule_message
+from src.rules.apply_rule_path import apply_rule_path
+from src.rules.apply_rule_stats import apply_rule_stats
 
 
 def load_cfg(data):
