@@ -7,7 +7,8 @@ from src.printing import print_to_term
 def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug):
     commit_status_change = __set_status(violations, session, force, reposlug, commit["sha"], dry_run)
     result_for_commit = __get_result_for_commit(violations, commit_status_change)
-    print_to_term(commit["sha"], commit["message"], violations, commit_status_change, result_for_commit, output_format)
+    print_to_term(commit["sha"], commit["commit"]["message"], violations, commit_status_change, result_for_commit,
+                  output_format)
 
 
 def __set_status(violations, session, force, reposlug, sha, dry_run):
@@ -15,20 +16,23 @@ def __set_status(violations, session, force, reposlug, sha, dry_run):
         return COMMIT_STATUS_DRY_RUN
 
     owner, repo = reposlug.split("/")
-    violated = False if len(violations) == 0 else True
-    violation_names = list(map(lambda x: x[0], violations))
-    description = "No rules are violated by this commit." if not violated \
+    violation_names = __get_violated_names(violations)
+    violated = False if len(violation_names) == 0 else True
+
+    description = "No rules are violated by this commit." if violated == 0 \
         else f"The commit violates rules: {sort_and_concat(violation_names)}. "
-    state = "success" if violated else "failure"
+    state = "failure" if violated else "success"
 
     try:
         if force or not __is_status_present(session, sha, reposlug):
-            session.post(f'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}/',
-                         params={"state": state, "description": description, "context": reposlug}).raise_for_status()
+            session.post(f'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}',
+                         json={"state": state, "description": description,
+                               "context": reposlug}).raise_for_status()
         else:
             return COMMIT_STATUS_SKIPPED
 
-    except requests.HTTPError:
+    except requests.HTTPError as e:
+        print(e)
         return COMMIT_STATUS_ERROR
 
     return COMMIT_STATUS_OK
@@ -38,7 +42,7 @@ def __is_status_present(session, sha, reposlug):
     owner, repo = reposlug.split("/")
     response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits/{sha}/statuses')
     response.raise_for_status()
-    return reposlug in list(map(lambda x: x["context"], response))
+    return reposlug in list(map(lambda x: x["context"], response.json()))
 
 
 def __get_result_for_commit(violations, commit_status_change):
@@ -50,3 +54,7 @@ def __get_result_for_commit(violations, commit_status_change):
         return RESULT_FAILURE
     else:
         return RESULT_SUCCESS
+
+
+def __get_violated_names(violations):
+    return [x[0] for x in violations if x[2] == RULE_FAIL]

@@ -5,24 +5,26 @@ from src.constants import *
 
 
 def print_to_term(sha, commit_msg, violations, commit_status_change, result_for_commit, output_format):
-    str_sha_message = "-" + click.style(f'{sha}: {commit_msg}', bold=True)
+    str_sha_message = "- " + click.style(f'{sha}: {commit_msg}', bold=True)
     str_commit_status_change = click.style("  ~> ", bold=True) + __get_commit_status_change_string(
         commit_status_change)
-    str_result_for_commit = click.style("  => ") + __get_result_for_commit_string(list(map(lambda x: x[0], violations)),
-                                                                                  result_for_commit)
+    str_result_for_commit = click.style("  => ", bold=True) + __get_result_for_commit_string(
+        list(map(lambda x: x[0], violations)),
+        result_for_commit)
     str_rules = __get_rule_text(violations)
 
     if output_format == "none":
         return
 
     print(str_sha_message)
+    print(str_result_for_commit)
+
     if result_for_commit == RESULT_SKIPPED:
-        print(str_result_for_commit)
         return
 
     if result_for_commit == "rules":
         print(str_rules)
-    print(commit_status_change)
+    print(str_commit_status_change)
 
 
 def __get_commit_status_change_string(commit_status_change):
@@ -43,7 +45,7 @@ def __get_result_for_commit_string(violation_names, result_for_commit):
                  + " - This commit already has status with the same context."
     elif result_for_commit == RESULT_SUCCESS:
         result = "{}".format(click.style("SUCCESS", fg="green")) \
-                 + "SUCCESS - No rules are violated by this commit."
+                 + " - No rules are violated by this commit."
     elif result_for_commit == RESULT_FAILURE:
         result = "{}".format(click.style("FAILURE", fg="red")) \
                  + f" - The commit violates rules: {sort_and_concat(violation_names)}."
