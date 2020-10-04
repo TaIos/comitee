@@ -1,6 +1,6 @@
 import requests
 from src.constants import *
-from src.helpers import sort_and_concat
+from src.helpers import sort_and_concat, get_failed_rule_names
 from src.printing import print_to_term
 
 
@@ -16,7 +16,7 @@ def __set_status(violations, session, force, reposlug, sha, dry_run):
         return COMMIT_STATUS_DRY_RUN
 
     owner, repo = reposlug.split("/")
-    violation_names = __get_violated_names(violations)
+    violation_names = get_failed_rule_names(violations)
     violated = False if len(violation_names) == 0 else True
 
     description = "No rules are violated by this commit." if violated == 0 \
@@ -54,7 +54,3 @@ def __get_result_for_commit(violations, commit_status_change):
         return RESULT_FAILURE
     else:
         return RESULT_SUCCESS
-
-
-def __get_violated_names(violations):
-    return [x[0] for x in violations if x[2] == RULE_FAIL]
