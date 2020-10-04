@@ -12,7 +12,17 @@ def print_to_term(sha, commit_msg, violations, commit_status_change, result_for_
                                                                                   result_for_commit)
     str_rules = __get_rule_text(violations)
 
+    if output_format == "none":
+        return
+
     print(str_sha_message)
+    if result_for_commit == RESULT_SKIPPED:
+        print(str_result_for_commit)
+        return
+
+    if result_for_commit == "rules":
+        print(str_rules)
+    print(commit_status_change)
 
 
 def __get_commit_status_change_string(commit_status_change):
