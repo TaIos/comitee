@@ -19,7 +19,9 @@ def input_validate_rule_stats(section):
         return INVALID_INPUT
     if section.get("min") is None and section.get("max") is None:
         return INVALID_INPUT
-    if not is_int(section.get("min")) or not is_int(section.get("max")):
+    if not section.get("min") is not None and is_int(section.get("min")):
+        return INVALID_INPUT
+    if not section.get("max") is not None and is_int(section.get("max")):
         return INVALID_INPUT
 
     return VALID_INPUT
