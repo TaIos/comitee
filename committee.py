@@ -16,9 +16,9 @@ from src.rules.apply_rule_path import apply_rule_path
 from src.rules.apply_rule_stats import apply_rule_stats
 
 
-def __load_cfg(data):
+def __load_cfg(ctx, param, value):
     cfg = configparser.ConfigParser()
-    cfg.read_string(data)
+    cfg.read_string(value.read())
     if __validate_cfg(cfg) != VALID_INPUT:
         raise click.BadParameter("Failed to load the configuration!")
     return cfg
@@ -85,7 +85,7 @@ def __fetch_commits(session, reposlug, author, path, ref):
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
-              type=click.File('r'), required=True)
+              type=click.File('r'), required=True, callback=__load_cfg)
 @click.option("-a", "--author", help="GitHub login or email address of author for checking commits.", metavar="AUTHOR",
               default=None)
 @click.option("-p", "--path", help="Only commits containing this file path will be checked.", metavar="PATH",
@@ -100,9 +100,8 @@ def __fetch_commits(session, reposlug, author, path, ref):
 @click.argument("REPOSLUG", required=True, callback=__validate_reposlug)
 def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
-    cfg = __load_cfg(config.read())
-    rules = __load_rules(cfg)
-    session = __create_auth_github_session(cfg)
+    rules = __load_rules(config)
+    session = __create_auth_github_session(config)
     commits = __fetch_commits(session, reposlug, author, path, ref)
 
     for commit in commits:
