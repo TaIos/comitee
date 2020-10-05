@@ -1,10 +1,11 @@
+import os
 import re
 
 from src.constants import RULE_OK, RULE_FAIL
 
 
-def apply_rule_message(rule, message):
-    match_type, match_target = rule["match"].split(":")
+def apply_rule_message(rule, message, config_path):
+    match_type, match_target = rule["match"].split(":", 1)
 
     status = RULE_OK
     if match_type == "plain":
@@ -12,7 +13,10 @@ def apply_rule_message(rule, message):
     elif match_type == "regex":
         status = __regex(message, match_target)
     elif match_type == "wordlist":
+        owd = os.getcwd()
+        os.chdir(config_path)
         status = __word_list(message, match_target)
+        os.chdir(owd)
 
     return status
 

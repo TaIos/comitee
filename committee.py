@@ -1,3 +1,4 @@
+import os
 import sys
 
 import click
@@ -20,9 +21,9 @@ def __load_cfg(ctx, param, value):
     cfg = configparser.ConfigParser()
     try:
         cfg.read_string(value.read())
+        cfg.config_path = os.path.dirname(value.name)  # add file path dir to config
     except configparser.Error:
         raise click.BadParameter("Failed to load the configuration!")
-
     if __validate_cfg(cfg) != VALID_INPUT:
         raise click.BadParameter("Failed to load the configuration!")
     return cfg
@@ -39,7 +40,10 @@ def __validate_cfg(cfg):
         elif section_name == "committee":
             status = input_validate_section_committee(cfg[section_name])
         elif is_rule_name(section_name):
+            owd = os.getcwd()
+            os.chdir(cfg.config_path)
             status = input_validate_rule(cfg[section_name])
+            os.chdir(owd)
 
         if status != VALID_INPUT:
             return status
@@ -118,7 +122,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
         for name, rule in rules.items():
             status = RULE_OK
             if rule["type"] == "message":
-                status = apply_rule_message(rule, commit["commit"]["message"])
+                status = apply_rule_message(rule, commit["commit"]["message"], config.config_path)
             elif rule["type"] == "path":
                 status = apply_rule_path(rule, session, commit["sha"], reposlug)
             elif rule["type"] == "stats":
