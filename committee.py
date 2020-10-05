@@ -18,7 +18,11 @@ from src.rules.apply_rule_stats import apply_rule_stats
 
 def __load_cfg(ctx, param, value):
     cfg = configparser.ConfigParser()
-    cfg.read_string(value.read())
+    try:
+        cfg.read_string(value.read())
+    except configparser.Error:
+        raise click.BadParameter("Failed to load the configuration!")
+
     if __validate_cfg(cfg) != VALID_INPUT:
         raise click.BadParameter("Failed to load the configuration!")
     return cfg
