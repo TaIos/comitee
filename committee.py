@@ -3,15 +3,14 @@ import sys
 import click
 import configparser
 import requests
-from os.path import isfile
 
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK, VALID_INPUT
 from src.helpers import is_rule_name, get_rule_name
+from src.input_validator.input_validate_reposlug import input_validate_reposlug
 from src.input_validator.input_validate_rule import input_validate_rule
 from src.input_validator.input_validate_section_committee import input_validate_section_committee
 from src.input_validator.input_validate_section_github import input_validate_section_github
-from src.input_validator.validate_params import validate_params
 from src.rules.apply_rule_message import apply_rule_message
 from src.rules.apply_rule_path import apply_rule_path
 from src.rules.apply_rule_stats import apply_rule_stats
@@ -62,6 +61,12 @@ def __create_auth_github_session(cfg):
     return session
 
 
+def __validate_reposlug(ctx, param, value):
+    if input_validate_reposlug(value) != VALID_INPUT:
+        raise click.BadParameter(f'Reposlug "{value}" is not valid!')
+    return value
+
+
 def __fetch_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
@@ -92,10 +97,9 @@ def __fetch_commits(session, reposlug, author, path, ref):
 @click.option("-o", "--output-format", help="Verbosity level of the output.  [default: commits]",
               type=click.Choice(["none", "commits", "rules"], case_sensitive=False), default="commits")
 @click.option("-d", "--dry-run", help="No changes will be made on GitHub.", is_flag=True, default=False)
-@click.argument("REPOSLUG", required=True)
+@click.argument("REPOSLUG", required=True, callback=__validate_reposlug)
 def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
-    validate_params(config, author, path, ref, force, dry_run, output_format, reposlug)
     cfg = __load_cfg(config.read())
     rules = __load_rules(cfg)
     session = __create_auth_github_session(cfg)
