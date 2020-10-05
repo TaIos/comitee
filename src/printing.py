@@ -56,7 +56,7 @@ def __get_result_for_commit_string(violation_names, result_for_commit):
 
 def __get_rule_text(violations):
     rule_text = []
-    for name, rule, status in violations:
+    for name, rule, status in sorted(violations, key=lambda x: x[0]):
         if status == RULE_OK:
             rule_text.append("  -> " + name + ": " + click.style("PASS", fg="green"))
         elif status == RULE_FAIL:
