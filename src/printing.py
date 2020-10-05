@@ -19,7 +19,7 @@ def print_to_term(sha, commit_msg, violations, commit_status_change, result_for_
         click.echo(str_result_for_commit)
         return
 
-    if result_for_commit == "rules":
+    if output_format == "rules":
         click.echo(str_rules)
 
     click.echo(str_commit_status_change)
