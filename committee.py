@@ -1,3 +1,5 @@
+import sys
+
 import click
 import configparser
 import requests
@@ -71,7 +73,7 @@ def __fetch_commits(session, reposlug, author, path, ref):
         return js if isinstance(js, list) else [js]
 
     except requests.HTTPError:
-        click.BadParameter(f"Failed to retrieve commits from repository {reposlug}.")
+        print(f"Failed to retrieve commits from repository {reposlug}.", file=sys.stderr)
 
 
 @click.command()
