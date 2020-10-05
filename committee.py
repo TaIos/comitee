@@ -5,7 +5,7 @@ import configparser
 import requests
 
 from src.apply_validation_result import apply_validation_result
-from src.constants import RULE_OK, VALID_INPUT
+from src.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
 from src.helpers import is_rule_name, get_rule_name
 from src.input_validator.input_validate_reposlug import input_validate_reposlug
 from src.input_validator.input_validate_rule import input_validate_rule
@@ -25,6 +25,9 @@ def __load_cfg(ctx, param, value):
 
 
 def __validate_cfg(cfg):
+    if "github" not in cfg.sections() or "committee" not in cfg.sections():
+        return INVALID_INPUT
+
     for section_name in cfg.sections():
         status = VALID_INPUT
         if section_name == "github":
@@ -36,6 +39,7 @@ def __validate_cfg(cfg):
 
         if status != VALID_INPUT:
             return status
+
     return VALID_INPUT
 
 
