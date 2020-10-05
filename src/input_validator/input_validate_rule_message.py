@@ -1,6 +1,5 @@
-import configparser
-
 from src.constants import INVALID_INPUT, VALID_INPUT
+from src.helpers import can_read_file
 
 
 def input_validate_rule_message(section):
@@ -10,6 +9,9 @@ def input_validate_rule_message(section):
     match = section.get("match")
     s = match.split(":")
     if len(s) != 2 or s[0] not in ["plain", "regex", "wordlist"]:
+        return INVALID_INPUT
+
+    if s[0] == "wordlist" and not can_read_file(s[1]):
         return INVALID_INPUT
 
     return VALID_INPUT

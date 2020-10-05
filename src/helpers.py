@@ -1,4 +1,6 @@
 from src.constants import RULE_FAIL
+from os import access, R_OK
+from os.path import isfile
 
 
 def sort_and_concat(violations):
@@ -29,3 +31,7 @@ def is_int(value):
         except ValueError:
             return False
     return False
+
+
+def can_read_file(file):
+    return isfile(file) and access(file, R_OK)
