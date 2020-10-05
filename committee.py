@@ -65,8 +65,8 @@ def __create_auth_github_session(cfg):
 def __fetch_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
-        response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits{"/" + ref if ref else ""}',
-                               params={"author": author, "path": path})
+        response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
+                               params={"author": author, "path": path, "sha": ref})
         response.raise_for_status()
 
         # response can be either one commit (json object) or multiple commits (json array)
