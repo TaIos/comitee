@@ -20,7 +20,7 @@ def __set_status(violations, session, force, reposlug, sha, dry_run, context):
     violated = False if len(violation_names) == 0 else True
 
     description = "No rules are violated by this commit." if violated == 0 \
-        else f"The commit violates rules: {sort_and_concat(violation_names)}. "
+        else f"The commit violates rules: {sort_and_concat(violation_names)}."
     state = "failure" if violated else "success"
 
     try:
