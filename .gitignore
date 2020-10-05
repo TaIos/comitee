@@ -153,3 +153,4 @@ fabric.properties
 # MANUALLY ADDED
 committee.cfg
 out.txt
+committee-*
