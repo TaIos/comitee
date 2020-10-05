@@ -56,10 +56,12 @@ def __get_result_for_commit_string(violation_names, result_for_commit):
 
 def __get_rule_text(violations):
     rule_text = []
-    for name, rule, status in sorted(violations, key=lambda x: x[0]):
-        if status == RULE_OK:
-            rule_text.append("  -> " + name + ": " + click.style("PASS", fg="green"))
-        elif status == RULE_FAIL:
-            rule_text.append("  -> " + name + ": " + click.style("FAIL", fg="red") + "\n     - " + rule.get("text"))
+    for violation in sorted(violations, key=lambda x: x["name"]):
+        if violation["status"] == RULE_OK:
+            rule_text.append("  -> " + violation["name"] + ": " + click.style("PASS", fg="green"))
+        elif violation["status"] == RULE_FAIL:
+            rule_text.append(
+                "  -> " + violation["name"] + ": " + click.style("FAIL", fg="red") + "\n     - " + violation[
+                    "rule"].get("text"))
 
     return "\n".join(rule_text)

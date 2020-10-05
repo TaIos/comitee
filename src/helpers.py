@@ -4,12 +4,12 @@ from os.path import isfile
 import re
 
 
-def sort_and_concat(violations):
-    return ', '.join(sorted(violations))
+def sort_and_concat(obj):
+    return ', '.join(sorted(obj))
 
 
 def get_failed_rule_names(violations):
-    return [x[0] for x in violations if x[2] == RULE_FAIL]
+    return [x["name"] for x in violations if x["status"] == RULE_FAIL]
 
 
 def is_rule_name(name):
