@@ -15,4 +15,4 @@ def is_rule_name(name):
 
 
 def get_rule_name(name):
-    s = name.split(":")[1]
+    return name.split(":")[1]
