@@ -14,14 +14,14 @@ def print_to_term(sha, commit_msg, violations, commit_status_change, result_for_
     if output_format == "none":
         return
 
-    print(str_sha_message)
-    print(str_result_for_commit)
+    click.echo(str_sha_message)
+    click.echo(str_result_for_commit)
 
     if result_for_commit == RESULT_SKIPPED:
         return
 
     if result_for_commit == "rules":
-        print(str_rules)
+        click.echo(str_rules)
     print(str_commit_status_change)
 
 
