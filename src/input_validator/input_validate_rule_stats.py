@@ -4,10 +4,11 @@ from src.constants import INVALID_INPUT, VALID_INPUT
 
 
 def input_validate_rule_stats(section):
-    if section.get("scope") is not None and section.get("scope") not in ["commit", "file"]:
-        return INVALID_INPUT
-    else:
+    scope = section.get("scope")
+    if scope is None:
         scope = "commit"
+    elif scope not in ["commit", "file"]:
+        return INVALID_INPUT
 
     if section.get("stat") is None:
         return INVALID_INPUT
