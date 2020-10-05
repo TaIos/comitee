@@ -31,7 +31,7 @@ def __plain(text, substr):
 
 @case_insensitive
 def __regex(text, pattern):
-    return RULE_OK if not re.search(text, pattern) else RULE_FAIL
+    return RULE_OK if re.match(pattern, text) is None else RULE_FAIL
 
 
 def __word_list(text, path):
