@@ -3,6 +3,7 @@ import sys
 import click
 import configparser
 import requests
+from os.path import isfile
 
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK, VALID_INPUT
@@ -79,7 +80,7 @@ def __fetch_commits(session, reposlug, author, path, ref):
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
-              type=click.File('r'), default="committee.cfg")
+              type=click.File('r'), required=True)
 @click.option("-a", "--author", help="GitHub login or email address of author for checking commits.", metavar="AUTHOR",
               default=None)
 @click.option("-p", "--path", help="Only commits containing this file path will be checked.", metavar="PATH",
