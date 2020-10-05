@@ -58,8 +58,8 @@ def __get_rule_text(violations):
     rule_text = []
     for name, rule, status in violations:
         if status == RULE_OK:
-            rule_text.append("  ->" + name + ": " + click.style("PASS", fg="green"))
+            rule_text.append("  -> " + name + ": " + click.style("PASS", fg="green"))
         elif status == RULE_FAIL:
-            rule_text.append("  ->" + name + ": " + click.style("FAIL", fg="red") + "\n    -" + rule.get("text"))
+            rule_text.append("  -> " + name + ": " + click.style("FAIL", fg="red") + "\n     - " + rule.get("text"))
 
     return "\n".join(rule_text)
