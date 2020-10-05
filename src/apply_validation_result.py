@@ -47,8 +47,6 @@ def __is_status_present(session, sha, reposlug, context):
 def __get_result_for_commit(violations, commit_status_change):
     if commit_status_change == COMMIT_STATUS_SKIPPED:
         return RESULT_SKIPPED
-    elif commit_status_change == COMMIT_STATUS_ERROR:
-        return RESULT_ERROR
     elif RULE_FAIL in list(map(lambda x: x[2], violations)):
         return RESULT_FAILURE
     else:
