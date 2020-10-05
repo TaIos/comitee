@@ -4,9 +4,6 @@ from src.constants import INVALID_INPUT, VALID_INPUT
 
 
 def input_validate_section_committee(section):
-    if not isinstance(section, configparser.SectionProxy):
-        return INVALID_INPUT
-
     if section.get("context") is None:
         return INVALID_INPUT
 
