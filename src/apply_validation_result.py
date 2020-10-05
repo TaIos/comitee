@@ -32,7 +32,6 @@ def __set_status(violations, session, force, reposlug, sha, dry_run, context):
             return COMMIT_STATUS_SKIPPED
 
     except requests.HTTPError as e:
-        print(e)
         return COMMIT_STATUS_ERROR
 
     return COMMIT_STATUS_OK
