@@ -16,3 +16,16 @@ def is_rule_name(name):
 
 def get_rule_name(name):
     return name.split(":")[1]
+
+
+def is_int(value):
+    if isinstance(value, int):
+        return True
+
+    if isinstance(value, str):
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+    return False
