@@ -27,7 +27,7 @@ def __set_status(violations, session, force, reposlug, sha, dry_run, context):
         if force or not __is_status_present(session, sha, reposlug, context):
             session.post(f'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}',
                          json={"state": state, "description": description,
-                               "context": reposlug}).raise_for_status()
+                               "context": context}).raise_for_status()
         else:
             return COMMIT_STATUS_SKIPPED
 
