@@ -60,8 +60,14 @@ def __get_rule_text(violations):
         if violation["status"] == RULE_OK:
             rule_text.append("  -> " + violation["name"] + ": " + click.style("PASS", fg="green"))
         elif violation["status"] == RULE_FAIL:
-            rule_text.append(
-                "  -> " + violation["name"] + ": " + click.style("FAIL", fg="red") + "\n     - " + violation[
-                    "rule"].get("text"))
+            if "failed_filenames" in violation["meta"] and len(violation["meta"]["failed_filenames"]) != 0:
+                text = "  -> " + violation["name"] + ": " + click.style("FAIL", fg="red")
+                for filename in violation["meta"]["failed_filenames"]:
+                    text += "\n     - " + filename + ": " + violation["rule"].get("text")
+                rule_text.append(text)
+            else:
+                rule_text.append(
+                    "  -> " + violation["name"] + ": " + click.style("FAIL", fg="red") + "\n     - " + violation[
+                        "rule"].get("text"))
 
     return "\n".join(rule_text)
