@@ -1,5 +1,5 @@
 from src.constants import INVALID_INPUT, VALID_INPUT
-from src.helpers import can_read_file
+from src.helpers import can_read_file, is_valid_regex
 
 
 def input_validate_rule_message(section):
@@ -12,6 +12,8 @@ def input_validate_rule_message(section):
         return INVALID_INPUT
 
     if s[0] == "wordlist" and not can_read_file(s[1]):
+        return INVALID_INPUT
+    if s[0] == "regex" and not is_valid_regex(s[1]):
         return INVALID_INPUT
 
     return VALID_INPUT

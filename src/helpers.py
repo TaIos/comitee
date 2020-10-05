@@ -1,6 +1,7 @@
 from src.constants import RULE_FAIL
 from os import access, R_OK
 from os.path import isfile
+import re
 
 
 def sort_and_concat(violations):
@@ -35,3 +36,11 @@ def is_int(value):
 
 def can_read_file(file):
     return isfile(file) and access(file, R_OK)
+
+
+def is_valid_regex(regex):
+    try:
+        re.compile(regex)
+        return True
+    except re.error:
+        return False
