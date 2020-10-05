@@ -4,14 +4,14 @@ from src.helpers import sort_and_concat, get_failed_rule_names
 from src.printing import print_to_term
 
 
-def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug):
-    commit_status_change = __set_status(violations, session, force, reposlug, commit["sha"], dry_run)
+def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context):
+    commit_status_change = __set_status(violations, session, force, reposlug, commit["sha"], dry_run, context)
     result_for_commit = __get_result_for_commit(violations, commit_status_change)
     print_to_term(commit["sha"], commit["commit"]["message"], violations, commit_status_change, result_for_commit,
                   output_format)
 
 
-def __set_status(violations, session, force, reposlug, sha, dry_run):
+def __set_status(violations, session, force, reposlug, sha, dry_run, context):
     if dry_run:
         return COMMIT_STATUS_DRY_RUN
 
@@ -24,7 +24,7 @@ def __set_status(violations, session, force, reposlug, sha, dry_run):
     state = "failure" if violated else "success"
 
     try:
-        if force or not __is_status_present(session, sha, reposlug):
+        if force or not __is_status_present(session, sha, reposlug, context):
             session.post(f'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}',
                          json={"state": state, "description": description,
                                "context": reposlug}).raise_for_status()
@@ -38,11 +38,11 @@ def __set_status(violations, session, force, reposlug, sha, dry_run):
     return COMMIT_STATUS_OK
 
 
-def __is_status_present(session, sha, reposlug):
+def __is_status_present(session, sha, reposlug, context):
     owner, repo = reposlug.split("/")
     response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits/{sha}/statuses')
     response.raise_for_status()
-    return reposlug in list(map(lambda x: x["context"], response.json()))
+    return context in list(map(lambda x: x["context"], response.json()))
 
 
 def __get_result_for_commit(violations, commit_status_change):

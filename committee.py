@@ -103,6 +103,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
     commits = __fetch_commits(session, reposlug, author, path, ref)
+    context = config["committee"]["context"]
 
     for commit in commits:
         violations = []
@@ -115,7 +116,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
             elif rule["type"] == "stats":
                 status = apply_rule_stats(rule, session, commit["sha"], reposlug)
             violations.append((name, rule, status))
-        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug)
+        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context)
 
 
 if __name__ == "__main__":
