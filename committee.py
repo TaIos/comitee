@@ -79,17 +79,26 @@ def __validate_reposlug(ctx, param, value):
     return value
 
 
-def __fetch_commits(session, reposlug, author, path, ref):
+def __fetch_all_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
-        response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
-                               params={"author": author, "path": path, "sha": ref})
-        response.raise_for_status()
+        commit_list = []
+        for page in range(1, 1000):
+            response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
+                                   params={"author": author, "path": path, "sha": ref, "page": page})
+            response.raise_for_status()
 
-        # response can be either one commit (json object) or multiple commits (json array)
-        js = response.json()
-        return js if isinstance(js, list) else [js]
+            js = response.json()
+            if len(js) == 0:
+                break
 
+            # response can be either one commit (json object) or multiple commits (json array)
+            if isinstance(js, list):
+                commit_list = commit_list + js
+            else:
+                commit_list.append(js)
+
+        return commit_list
     except requests.HTTPError:
         print(f"Failed to retrieve commits from repository {reposlug}.", file=sys.stderr)
 
@@ -114,7 +123,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
-    commits = __fetch_commits(session, reposlug, author, path, ref)
+    commits = __fetch_all_commits(session, reposlug, author, path, ref)
     context = config["committee"]["context"]
 
     for commit in commits:
