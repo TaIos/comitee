@@ -4,6 +4,7 @@ import sys
 import click
 import configparser
 import requests
+import itertools
 
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
@@ -15,13 +16,14 @@ from src.input_validator.input_validate_section_github import input_validate_sec
 from src.rules.apply_rule_message import apply_rule_message
 from src.rules.apply_rule_path import apply_rule_path
 from src.rules.apply_rule_stats import apply_rule_stats
+from flask import Flask, request, jsonify, render_template
 
 
 def __load_cfg(ctx, param, value):
     cfg = configparser.ConfigParser()
     try:
         cfg.read_string(value.read())
-        cfg.config_path = os.path.dirname(value.name)  # add file path dir to config
+        cfg.config_path = os.path.dirname(os.path.abspath(value.name))  # add file path dir to config
     except configparser.Error:
         raise click.BadParameter("Failed to load the configuration!")
     if __validate_cfg(cfg) != VALID_INPUT:
@@ -79,19 +81,29 @@ def __validate_reposlug(ctx, param, value):
     return value
 
 
-def __fetch_commits(session, reposlug, author, path, ref):
+def __fetch_all_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
-        response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
-                               params={"author": author, "path": path, "sha": ref})
-        response.raise_for_status()
+        commit_list = []
+        for page in itertools.count(start=0):
+            response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
+                                   params={"author": author, "path": path, "sha": ref, "page": page})
+            response.raise_for_status()
 
-        # response can be either one commit (json object) or multiple commits (json array)
-        js = response.json()
-        return js if isinstance(js, list) else [js]
+            js = response.json()
+            if len(js) == 0:
+                break
 
+            # response can be either one commit (json object) or multiple commits (json array)
+            if isinstance(js, list):
+                commit_list = commit_list + js
+            else:
+                commit_list.append(js)
+
+        return commit_list
     except requests.HTTPError:
         print(f"Failed to retrieve commits from repository {reposlug}.", file=sys.stderr)
+        exit(1)
 
 
 @click.command()
@@ -110,11 +122,11 @@ def __fetch_commits(session, reposlug, author, path, ref):
               type=click.Choice(["none", "commits", "rules"], case_sensitive=False), default="commits")
 @click.option("-d", "--dry-run", help="No changes will be made on GitHub.", is_flag=True, default=False)
 @click.argument("REPOSLUG", required=True, callback=__validate_reposlug)
-def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
+def comitee(config, author, path, ref, force, dry_run, output_format, reposlug, target_url=None):
     """An universal tool for checking commits on GitHub"""
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
-    commits = __fetch_commits(session, reposlug, author, path, ref)
+    commits = __fetch_all_commits(session, reposlug, author, path, ref)
     context = config["committee"]["context"]
 
     for commit in commits:
@@ -134,3 +146,29 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
 
 if __name__ == "__main__":
     comitee()
+
+
+def __github_hook_validate_commits(json_payload):
+    comitee()
+    return jsonify({'success': True, 'target_url': request.base_url})
+
+
+def create_app(config=None):
+    app = Flask(__name__)
+
+    @app.route('/', methods=['POST'])
+    def post_github_webhook():
+        if request.headers.get('x-github-event') == 'ping':
+            return jsonify({'success': True})
+        elif request.headers.get('x-github-event') == 'push':
+            return __github_hook_validate_commits(request.json)
+
+    @app.route('/', methods=['GET'])
+    def get_github_webhook():
+        return render_template('settings_page.html', context='LQpKH20/657757dd', username='LQpKH20',
+                               rules=[{'rule': 'polite-message', 'text': 'Commit message contains dirty words.',
+                                       'match': 'wordlist:tests/fixtures/wordlists/forbidden.txt'},
+                                      {'rule': 'keep-license', 'text': 'LICENSE should not be removed.',
+                                       'type': 'path', 'status': 'removed', 'match': 'plain:LICENSE'}])
+
+    return app
