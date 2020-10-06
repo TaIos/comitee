@@ -127,7 +127,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
             elif rule["type"] == "path":
                 status = apply_rule_path(rule, session, commit["sha"], reposlug, config.config_path, meta)
             elif rule["type"] == "stats":
-                status = apply_rule_stats(rule, session, commit["sha"], reposlug)
+                status = apply_rule_stats(rule, session, commit["sha"], reposlug, meta)
             violations.append({"name": name, "rule": rule, "status": status, "meta": meta})
         apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context)
 
