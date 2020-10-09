@@ -5,6 +5,8 @@ import click
 import configparser
 import requests
 
+from flask import Flask, request, jsonify, render_template
+
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
 from src.helpers import is_rule_name, get_rule_name
@@ -143,3 +145,17 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
 
 if __name__ == "__main__":
     comitee()
+
+
+def create_app(config=None):
+    app = Flask(__name__)
+
+    @app.route('/', methods=['POST'])
+    def post_github_webhook():
+        return request.json
+
+    @app.route('/', methods=['GET'])
+    def get_github_webhook():
+        return render_template('hello.html', name="Martin")
+
+    return app
