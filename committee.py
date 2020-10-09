@@ -83,7 +83,7 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
         commit_list = []
-        for page in range(1, 1000):
+        while True:
             response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
                                    params={"author": author, "path": path, "sha": ref, "page": page})
             response.raise_for_status()
