@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+        <title>Hello from Flask</title>
+    </head>
+    <body>
+        <h2>Setting</h1>
+        Context: {{ context }} <br>
+        User: {{ username }}
+
+        <br>
+
+        <h2>Active rules</h2>
+        {% if rules %}
+            {% for rule in rules %}
+                <table>
+                {% for key, value in rule.items(): %}
+                    <tr>
+                       <th>{{ key }}</th>
+                       <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            <br>
+            {% endfor %}
+        {% else %}
+                No rules are set.
+        {% endif %}
+
+    </body>
+</html>

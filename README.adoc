@@ -5,6 +5,12 @@
 * semester: winter 2020/2021
 * testing repo for this task: https://github.com/TaIos/comitee-test
 
+= Committee II.
+* `export FLASK_APP="committee.py:create_app"`
+* `export FLASK_DEBUG=1`
+* `flask run`
+
+
 = Committee I.
 :toc:
 :note-caption: :information_source:

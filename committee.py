@@ -6,6 +6,8 @@ import configparser
 import requests
 import itertools
 
+from flask import Flask, request, jsonify, render_template
+
 from src.apply_validation_result import apply_validation_result
 from src.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
 from src.helpers import is_rule_name, get_rule_name
@@ -104,7 +106,6 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
     except requests.HTTPError:
         print(f"Failed to retrieve commits from repository {reposlug}.", file=sys.stderr)
         exit(1)
-
 
 @click.command()
 @click.version_option(version="0.1")
