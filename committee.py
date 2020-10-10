@@ -156,6 +156,10 @@ def create_app(config=None):
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
-        return render_template('hello.html', name="Martin")
+        return render_template('settings_page.html', context='LQpKH20/657757dd', username='LQpKH20',
+                               rules=[{'rule': 'polite-message', 'text': 'Commit message contains dirty words.',
+                                       'match': 'wordlist:tests/fixtures/wordlists/forbidden.txt'},
+                                      {'rule': 'keep-license', 'text': 'LICENSE should not be removed.',
+                                       'type': 'path', 'status': 'removed', 'match': 'plain:LICENSE'}])
 
     return app
