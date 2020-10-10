@@ -216,7 +216,7 @@ def __configure_flask_app(app):
         f'Initialized flask with:  context={app.config["context"]}, username={app.config["username"]}')
 
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
     __configure_flask_app(app)
 
