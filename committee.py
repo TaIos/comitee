@@ -85,7 +85,7 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
     owner, repo = reposlug.split("/")
     try:
         commit_list = []
-        for page in itertools.count(start=0):
+        for page in itertools.count(start=1):
             response = session.get(f'https://api.github.com/repos/{owner}/{repo}/commits',
                                    params={"author": author, "path": path, "sha": ref, "page": page})
             response.raise_for_status()
@@ -149,7 +149,6 @@ if __name__ == "__main__":
 
 
 def __github_hook_validate_commits(json_payload):
-    comitee()
     return jsonify({'success': True, 'target_url': request.base_url})
 
 
