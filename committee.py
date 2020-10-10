@@ -1,10 +1,12 @@
 import os
+import shlex
 import sys
 
 import click
 import configparser
 import requests
 import itertools
+import subprocess
 
 from flask import Flask, request, jsonify, render_template
 
@@ -107,6 +109,7 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
         print(f"Failed to retrieve commits from repository {reposlug}.", file=sys.stderr)
         exit(1)
 
+
 @click.command()
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
@@ -123,7 +126,7 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
               type=click.Choice(["none", "commits", "rules"], case_sensitive=False), default="commits")
 @click.option("-d", "--dry-run", help="No changes will be made on GitHub.", is_flag=True, default=False)
 @click.argument("REPOSLUG", required=True, callback=__validate_reposlug)
-def comitee(config, author, path, ref, force, dry_run, output_format, reposlug, target_url=None):
+def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
@@ -149,26 +152,84 @@ if __name__ == "__main__":
     comitee()
 
 
-def __github_hook_validate_commits(json_payload):
-    return jsonify({'success': True, 'target_url': request.base_url})
+def run(line, **kwargs):
+    print('$ python committee.py', line)
+    command = [sys.executable, 'committee.py'] + shlex.split(line)
+    return subprocess.run(command,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          universal_newlines=True,
+                          **kwargs)
 
 
-def create_app(config=None):
+def __github_ping():
+    return jsonify({'success': True})
+
+
+def __github_push(json_payload, config_file):
+    reposlug = json_payload['repository']['full_name']
+
+    response_commits = []
+    for commit in json_payload['commits']:
+        sha = commit['id']
+        cp = run(f'--config "{config_file}" '
+                 f'--ref "{sha}" '
+                 f'"{reposlug}"')
+        response_commits.append({'stdout': cp.stdout, 'stderr': cp.stderr,
+                                 'returncode': cp.returncode, 'sha': sha})
+
+    return jsonify(
+        {'success': True, 'target_url': request.base_url, 'config_file': config_file, 'commits': response_commits})
+
+
+def __configure_flask_app(app):
+    app.config['config_path'] = os.environ.get('COMMITTEE_CONFIG', None)
+    if app.config['config_path'] is None:
+        app.logger.error('COMMITTEE_CONFIG is not set.')
+        exit(1)
+
+    try:
+        with open(app.config['config_path'], 'r') as file:
+            data = file.read()
+    except OSError:
+        app.logger.error(f'Could not open/read file: {app.config["config_path"]}')
+        exit(1)
+
+    cfg = configparser.ConfigParser()
+    cfg.read_string(data)
+    cfg.config_path = os.path.dirname(os.path.abspath(app.config['config_path']))
+
+    if __validate_cfg(cfg) != VALID_INPUT or not cfg.has_option("github", "secret"):
+        app.logger.error('Failed to load the configuration!')
+        exit(1)
+
+    app.config['secret'] = cfg['github']['secret']
+    app.config['token'] = cfg['github']['token']
+    app.config['context'] = cfg['committee']['context']
+    app.config['rules'] = __load_rules(cfg)
+
+    session = __create_auth_github_session(cfg)
+    r = session.get(f'https://api.github.com/user')
+    app.config['username'] = r.json()['name']
+
+    app.logger.debug(
+        f'Initialized flask with:  context={app.config["context"]}, username={app.config["username"]}')
+
+
+def create_app():
     app = Flask(__name__)
+    __configure_flask_app(app)
 
     @app.route('/', methods=['POST'])
     def post_github_webhook():
         if request.headers.get('x-github-event') == 'ping':
-            return jsonify({'success': True})
+            return __github_ping()
         elif request.headers.get('x-github-event') == 'push':
-            return __github_hook_validate_commits(request.json)
+            return __github_push(request.json, app.config['config_path'])
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
-        return render_template('settings_page.html', context='LQpKH20/657757dd', username='LQpKH20',
-                               rules=[{'rule': 'polite-message', 'text': 'Commit message contains dirty words.',
-                                       'match': 'wordlist:tests/fixtures/wordlists/forbidden.txt'},
-                                      {'rule': 'keep-license', 'text': 'LICENSE should not be removed.',
-                                       'type': 'path', 'status': 'removed', 'match': 'plain:LICENSE'}])
+        return render_template('settings_page.html', context=app.config['context'], username=app.config['username'],
+                               rules=app.config['rules'])
 
     return app

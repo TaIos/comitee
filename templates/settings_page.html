@@ -13,8 +13,12 @@
 
         <h2>Active rules</h2>
         {% if rules %}
-            {% for rule in rules %}
+            {% for name, rule in rules.items(): %}
                 <table>
+                    <tr>
+                        <th>{{ "rule name" }}</th>
+                        <td>{{ name }}</td>
+                    </tr>
                 {% for key, value in rule.items(): %}
                     <tr>
                        <th>{{ key }}</th>
