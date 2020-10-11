@@ -9,6 +9,7 @@
 * `export FLASK_APP="committee.py:create_app"`
 * `export FLASK_DEBUG=1`
 * `flask run`
+*  page: http://talos.pythonanywhere.com/
 
 
 = Committee I.
