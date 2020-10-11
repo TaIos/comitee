@@ -1,13 +1,12 @@
+import configparser
+import hashlib
+import hmac
+import itertools
 import os
-import shlex
 import sys
 
 import click
-import configparser
 import requests
-import itertools
-import subprocess
-
 from flask import Flask, request, jsonify, render_template
 
 from src.apply_validation_result import apply_validation_result
@@ -20,7 +19,6 @@ from src.input_validator.input_validate_section_github import input_validate_sec
 from src.rules.apply_rule_message import apply_rule_message
 from src.rules.apply_rule_path import apply_rule_path
 from src.rules.apply_rule_stats import apply_rule_stats
-from flask import Flask, request, jsonify, render_template
 
 
 def __load_cfg(ctx, param, value):
@@ -156,6 +154,11 @@ if __name__ == "__main__":
     comitee()
 
 
+def __verify_signature(payload_body, signature, secret):
+    calculated_signature = 'sha1=' + hmac.new(secret, payload_body, hashlib.sha1).hexdigest()
+    return hmac.compare_digest(signature, calculated_signature)
+
+
 def __github_ping():
     return jsonify({'success': True})
 
@@ -174,7 +177,19 @@ def __github_push(json_payload, config):
 
 
 def __invalid_request_header():
-    return jsonify({'error': 'invalid request header'})
+    return jsonify({'error': 'invalid request header', 'success': False})
+
+
+def __invalid_signature():
+    return jsonify({'error': 'invalid signature', 'success': False})
+
+
+def __invalid_github_event():
+    return jsonify({'error': 'invalid github event', 'success': False})
+
+
+def __empty_data():
+    return jsonify({'error': 'no data', 'success': False})
 
 
 def __configure_flask_app(app):
@@ -219,12 +234,23 @@ def create_app(config=None):
 
     @app.route('/', methods=['POST'])
     def post_github_webhook():
+
+        if 'X-Hub-Signature' not in request.headers or 'X-Github-Event' not in request.headers:
+            return __invalid_request_header()
+
+        if not request.data:
+            return __empty_data()
+
+        if not __verify_signature(request.get_data(), request.headers.get('X-Hub-Signature'),
+                                  app.config['secret'].encode()):
+            return __invalid_signature()
+
         if request.headers.get('x-github-event') == 'ping':
             return __github_ping()
         elif request.headers.get('x-github-event') == 'push':
             return __github_push(request.json, app.config['cfg_object'])
         else:
-            return __invalid_request_header()
+            return __invalid_github_event()
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
