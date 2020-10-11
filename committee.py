@@ -183,10 +183,11 @@ def __github_push(json_payload, config_file):
 
 
 def __configure_flask_app(app):
-    app.config['config_path'] = os.environ.get('COMMITTEE_CONFIG', None)
-    if app.config['config_path'] is None:
+    committee_config_rel = os.environ.get('COMMITTEE_CONFIG', None)
+    if committee_config_rel is None:
         app.logger.error('COMMITTEE_CONFIG is not set.')
         exit(1)
+    app.config['config_path'] = os.path.abspath(committee_config_rel)
 
     try:
         with open(app.config['config_path'], 'r') as file:
@@ -197,7 +198,7 @@ def __configure_flask_app(app):
 
     cfg = configparser.ConfigParser()
     cfg.read_string(data)
-    cfg.config_path = os.path.dirname(os.path.abspath(app.config['config_path']))
+    cfg.config_path = os.path.dirname(app.config['config_path'])
 
     if __validate_cfg(cfg) != VALID_INPUT or not cfg.has_option("github", "secret"):
         app.logger.error('Failed to load the configuration!')
