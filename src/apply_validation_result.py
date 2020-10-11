@@ -4,14 +4,15 @@ from src.helpers import sort_and_concat, get_failed_rule_names
 from src.printing import print_to_term
 
 
-def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context):
-    commit_status_change = __set_status(violations, session, force, reposlug, commit["sha"], dry_run, context)
+def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context, target_url):
+    commit_status_change = __set_status(violations, session, force, reposlug, commit["sha"], dry_run, context,
+                                        target_url)
     result_for_commit = __get_result_for_commit(violations, commit_status_change)
     print_to_term(commit["sha"], commit["commit"]["message"], violations, commit_status_change, result_for_commit,
                   output_format)
 
 
-def __set_status(violations, session, force, reposlug, sha, dry_run, context):
+def __set_status(violations, session, force, reposlug, sha, dry_run, context, target_url):
     if dry_run:
         return COMMIT_STATUS_DRY_RUN
 
@@ -27,7 +28,7 @@ def __set_status(violations, session, force, reposlug, sha, dry_run, context):
         if force or not __is_status_present(session, sha, reposlug, context):
             session.post(f'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}',
                          json={"state": state, "description": description,
-                               "context": context}).raise_for_status()
+                               "context": context, "target_url": target_url}).raise_for_status()
         else:
             return COMMIT_STATUS_SKIPPED
 

@@ -129,7 +129,7 @@ def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     return comitee_run(config, author, path, ref, force, dry_run, output_format, reposlug)
 
 
-def comitee_run(config, author, path, ref, force, dry_run, output_format, reposlug):
+def comitee_run(config, author, path, ref, force, dry_run, output_format, reposlug, target_url=None):
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
     commits = __fetch_all_commits(session, reposlug, author, path, ref)
@@ -147,7 +147,7 @@ def comitee_run(config, author, path, ref, force, dry_run, output_format, reposl
             elif rule["type"] == "stats":
                 status = apply_rule_stats(rule, session, commit["sha"], reposlug, meta)
             violations.append({"name": name, "rule": rule, "status": status, "meta": meta})
-        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context)
+        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context, target_url)
 
 
 if __name__ == "__main__":
@@ -163,14 +163,14 @@ def __github_ping():
     return jsonify({'success': True})
 
 
-def __github_push(json_payload, config):
+def __github_push(json_payload, config, target_url):
     reposlug = json_payload['repository']['full_name']
 
     response_commits = []
     for commit in json_payload['commits']:
         sha = commit['id']
         comitee_run(config=config, author=None, path=None, ref=sha, force=False, dry_run=False, output_format=None,
-                    reposlug=reposlug)
+                    reposlug=reposlug, target_url=target_url)
         response_commits.append({"sha": sha})
 
     return jsonify({'success': True, 'target_url': request.base_url, 'commits': response_commits})
@@ -248,7 +248,7 @@ def create_app(config=None):
         if request.headers.get('x-github-event') == 'ping':
             return __github_ping()
         elif request.headers.get('x-github-event') == 'push':
-            return __github_push(request.json, app.config['cfg_object'])
+            return __github_push(request.json, app.config['cfg_object'], request.base_url)
         else:
             return __invalid_github_event()
 
