@@ -128,6 +128,10 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
 @click.argument("REPOSLUG", required=True, callback=__validate_reposlug)
 def comitee(config, author, path, ref, force, dry_run, output_format, reposlug):
     """An universal tool for checking commits on GitHub"""
+    return comitee_run(config, author, path, ref, force, dry_run, output_format, reposlug)
+
+
+def comitee_run(config, author, path, ref, force, dry_run, output_format, reposlug):
     rules = __load_rules(config)
     session = __create_auth_github_session(config)
     commits = __fetch_all_commits(session, reposlug, author, path, ref)
@@ -152,34 +156,25 @@ if __name__ == "__main__":
     comitee()
 
 
-def run(line, **kwargs):
-    print('$ python committee.py', line)
-    command = [sys.executable, 'committee.py'] + shlex.split(line)
-    return subprocess.run(command,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
-                          universal_newlines=True,
-                          **kwargs)
-
-
 def __github_ping():
     return jsonify({'success': True})
 
 
-def __github_push(json_payload, config_file):
+def __github_push(json_payload, config):
     reposlug = json_payload['repository']['full_name']
 
     response_commits = []
     for commit in json_payload['commits']:
         sha = commit['id']
-        cp = run(f'--config "{config_file}" '
-                 f'--ref "{sha}" '
-                 f'"{reposlug}"')
-        response_commits.append({'stdout': cp.stdout, 'stderr': cp.stderr,
-                                 'returncode': cp.returncode, 'sha': sha})
+        comitee_run(config=config, author=None, path=None, ref=sha, force=False, dry_run=False, output_format=None,
+                    reposlug=reposlug)
+        response_commits.append({"sha": sha})
 
-    return jsonify(
-        {'success': True, 'target_url': request.base_url, 'config_file': config_file, 'commits': response_commits})
+    return jsonify({'success': True, 'target_url': request.base_url, 'commits': response_commits})
+
+
+def __invalid_request_header():
+    return jsonify({'error': 'invalid request header'})
 
 
 def __configure_flask_app(app):
@@ -204,6 +199,7 @@ def __configure_flask_app(app):
         app.logger.error('Failed to load the configuration!')
         exit(1)
 
+    app.config['cfg_object'] = cfg
     app.config['secret'] = cfg['github']['secret']
     app.config['token'] = cfg['github']['token']
     app.config['context'] = cfg['committee']['context']
@@ -226,7 +222,9 @@ def create_app(config=None):
         if request.headers.get('x-github-event') == 'ping':
             return __github_ping()
         elif request.headers.get('x-github-event') == 'push':
-            return __github_push(request.json, app.config['config_path'])
+            return __github_push(request.json, app.config['cfg_object'])
+        else:
+            return __invalid_request_header()
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
