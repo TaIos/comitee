@@ -8,6 +8,7 @@ setup(
     version='0.1',
     description='An universal tool for checking commits on GitHub',
     long_description=long_description,
+    long_description_content_type="text/asciidoc",
     author='Martin Šafránek',
     author_email='gismocz@gmail.com',
     keywords='github,commit,git',
