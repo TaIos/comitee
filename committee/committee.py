@@ -152,7 +152,7 @@ def comitee_run(config, author, path, ref, force, dry_run, output_format, reposl
 
 
 def main():
-    comitee()
+    comitee(prog_name='committee')
 
 
 def __verify_signature(payload_body, signature, secret):
