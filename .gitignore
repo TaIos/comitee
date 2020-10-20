@@ -157,3 +157,4 @@ committee-*
 test.cfg
 export_flask
 test*/
+dist/
