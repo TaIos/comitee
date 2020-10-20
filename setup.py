@@ -5,13 +5,13 @@ with open('README.md') as f:
 
 setup(
     name='committee_saframa6',
-    version='0.3.1',
+    version='0.3.2',
     description='An universal tool for checking commits on GitHub',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Martin Šafránek',
     author_email='gismocz@gmail.com',
-    keywords='github,commit,git',
+    keywords='github,commit,git,flask',
     license='MIT License',
     url='https://github.com/TaIos/comitee',
     packages=find_packages(),
