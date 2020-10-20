@@ -1,3 +1,3 @@
-from .committee import main
+from committee.committee import main
 
 main()
