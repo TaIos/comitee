@@ -26,7 +26,7 @@ setup(
             'committee=committee.committee:main',
         ],
     },
-    install_requires=['Flask', 'click>=6'],
+    install_requires=['Flask', 'click>=6', 'requests>=2.2'],
     zip_safe=False,
     python_requires='>=3.6',
     package_data={'committee': ['templates/*.html', 'static/*.css']},
