@@ -1,6 +1,6 @@
 import configparser
 
-from src.constants import INVALID_INPUT, VALID_INPUT
+from committee.constants import INVALID_INPUT, VALID_INPUT
 
 
 def input_validate_rule_path(section):

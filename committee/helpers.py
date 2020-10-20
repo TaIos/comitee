@@ -1,4 +1,4 @@
-from src.constants import RULE_FAIL
+from committee.constants import RULE_FAIL
 from os import access, R_OK
 from os.path import isfile
 import re

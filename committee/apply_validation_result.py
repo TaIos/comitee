@@ -1,7 +1,7 @@
 import requests
-from src.constants import *
-from src.helpers import sort_and_concat, get_failed_rule_names
-from src.printing import print_to_term
+from committee.constants import *
+from committee.helpers import sort_and_concat, get_failed_rule_names
+from committee.printing import print_to_term
 
 
 def apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context, target_url):

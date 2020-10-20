@@ -1,9 +1,9 @@
 import configparser
 
-from src.constants import INVALID_INPUT
-from src.input_validator.input_validate_rule_message import input_validate_rule_message
-from src.input_validator.input_validate_rule_path import input_validate_rule_path
-from src.input_validator.input_validate_rule_stats import input_validate_rule_stats
+from committee.constants import INVALID_INPUT
+from committee.input_validator.input_validate_rule_message import input_validate_rule_message
+from committee.input_validator.input_validate_rule_path import input_validate_rule_path
+from committee.input_validator.input_validate_rule_stats import input_validate_rule_stats
 
 
 def input_validate_rule(section):

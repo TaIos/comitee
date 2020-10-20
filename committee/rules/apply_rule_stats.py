@@ -1,4 +1,4 @@
-from src.constants import RULE_OK, RULE_FAIL
+from committee.constants import RULE_OK, RULE_FAIL
 import math
 
 

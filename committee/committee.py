@@ -9,16 +9,16 @@ import click
 import requests
 from flask import Flask, request, jsonify, render_template
 
-from src.apply_validation_result import apply_validation_result
-from src.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
-from src.helpers import is_rule_name, get_rule_name
-from src.input_validator.input_validate_reposlug import input_validate_reposlug
-from src.input_validator.input_validate_rule import input_validate_rule
-from src.input_validator.input_validate_section_committee import input_validate_section_committee
-from src.input_validator.input_validate_section_github import input_validate_section_github
-from src.rules.apply_rule_message import apply_rule_message
-from src.rules.apply_rule_path import apply_rule_path
-from src.rules.apply_rule_stats import apply_rule_stats
+from committee.apply_validation_result import apply_validation_result
+from committee.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
+from committee.helpers import is_rule_name, get_rule_name
+from committee.input_validator.input_validate_reposlug import input_validate_reposlug
+from committee.input_validator.input_validate_rule import input_validate_rule
+from committee.input_validator.input_validate_section_committee import input_validate_section_committee
+from committee.input_validator.input_validate_section_github import input_validate_section_github
+from committee.rules.apply_rule_message import apply_rule_message
+from committee.rules.apply_rule_path import apply_rule_path
+from committee.rules.apply_rule_stats import apply_rule_stats
 
 
 def __load_cfg(ctx, param, value):
