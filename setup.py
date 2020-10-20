@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-with open('README.adoc') as f:
+with open('README.md') as f:
     long_description = ''.join(f.readlines())
 
 setup(
