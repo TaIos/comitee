@@ -108,7 +108,7 @@ def __fetch_all_commits(session, reposlug, author, path, ref):
         exit(1)
 
 
-@click.command()
+@click.command(prog_name='committee')
 @click.version_option(version="0.1")
 @click.option("-c", "--config", help="Committee configuration file.", metavar="FILENAME",
               type=click.File('r'), required=True, callback=__load_cfg)
