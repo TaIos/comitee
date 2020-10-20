@@ -9,9 +9,9 @@ import click
 import requests
 from flask import Flask, request, jsonify, render_template
 
-from committee.apply_validation_result import apply_validation_result
-from committee.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
-from committee.helpers import is_rule_name, get_rule_name
+from committee.rules.apply_validation_result import apply_validation_result
+from committee.util.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
+from committee.util.helpers import is_rule_name, get_rule_name
 from committee.input_validator.input_validate_reposlug import input_validate_reposlug
 from committee.input_validator.input_validate_rule import input_validate_rule
 from committee.input_validator.input_validate_section_committee import input_validate_section_committee
@@ -147,10 +147,11 @@ def comitee_run(config, author, path, ref, force, dry_run, output_format, reposl
             elif rule["type"] == "stats":
                 status = apply_rule_stats(rule, session, commit["sha"], reposlug, meta)
             violations.append({"name": name, "rule": rule, "status": status, "meta": meta})
-        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context, target_url)
+        apply_validation_result(violations, session, commit, dry_run, output_format, force, reposlug, context,
+                                target_url)
 
 
-if __name__ == "__main__":
+def main():
     comitee()
 
 

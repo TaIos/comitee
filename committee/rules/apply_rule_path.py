@@ -1,5 +1,5 @@
 from committee.rules.apply_rule_message import apply_rule_message
-from committee.constants import RULE_OK, RULE_FAIL
+from committee.util.constants import RULE_OK, RULE_FAIL
 
 
 def apply_rule_path(rule, session, sha, reposlug, config_path, meta):

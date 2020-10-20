@@ -1,7 +1,5 @@
-import configparser
-
-from committee.constants import INVALID_INPUT, VALID_INPUT
-from committee.helpers import is_int
+from committee.util.constants import INVALID_INPUT, VALID_INPUT
+from committee.util.helpers import is_int
 
 
 def input_validate_rule_stats(section):

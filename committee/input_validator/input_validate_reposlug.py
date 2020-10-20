@@ -1,4 +1,4 @@
-from committee.constants import INVALID_INPUT, VALID_INPUT
+from committee.util.constants import INVALID_INPUT, VALID_INPUT
 
 
 def input_validate_reposlug(reposlug):

@@ -1,5 +1,5 @@
-from committee.constants import INVALID_INPUT, VALID_INPUT
-from committee.helpers import can_read_file, is_valid_regex
+from committee.util.constants import INVALID_INPUT, VALID_INPUT
+from committee.util.helpers import can_read_file, is_valid_regex
 
 
 def input_validate_rule_message(section):
