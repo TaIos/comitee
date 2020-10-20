@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='committee_saframa6',
-    version='0.2',
+    version='0.3',
     description='An universal tool for checking commits on GitHub',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Framework :: Flask'
     ],
     entry_points={
         'console_scripts': [
