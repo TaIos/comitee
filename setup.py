@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='committee_saframa6',
-    version='0.3.4',
+    version='0.3.5',
     description='An universal tool for checking commits on GitHub',
     long_description=long_description,
     long_description_content_type="text/markdown",
