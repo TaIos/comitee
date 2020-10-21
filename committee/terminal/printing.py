@@ -1,7 +1,7 @@
 import click
 
-from committee.util.helpers import sort_and_concat, get_failed_rule_names
-from committee.util.constants import *
+from committee.helpers import sort_and_concat, get_failed_rule_names
+from committee.constants import *
 
 
 def print_to_term(sha, commit_msg, violations, commit_status_change, result_for_commit, output_format):

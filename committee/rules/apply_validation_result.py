@@ -1,6 +1,6 @@
 import requests
-from committee.util.constants import *
-from committee.util.helpers import sort_and_concat, get_failed_rule_names
+from committee.constants import *
+from committee.helpers import sort_and_concat, get_failed_rule_names
 from committee.terminal.printing import print_to_term
 
 

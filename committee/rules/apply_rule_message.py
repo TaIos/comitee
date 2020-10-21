@@ -1,7 +1,7 @@
 import os
 import re
 
-from committee.util.constants import RULE_OK, RULE_FAIL
+from committee.constants import RULE_OK, RULE_FAIL
 
 
 def apply_rule_message(rule, message, config_path):

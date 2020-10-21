@@ -1,4 +1,4 @@
-from committee.util.constants import INVALID_INPUT
+from committee.constants import INVALID_INPUT
 from committee.input_validator.input_validate_rule_message import input_validate_rule_message
 from committee.input_validator.input_validate_rule_path import input_validate_rule_path
 from committee.input_validator.input_validate_rule_stats import input_validate_rule_stats

@@ -10,8 +10,8 @@ import requests
 from flask import Flask, request, jsonify, render_template
 
 from committee.rules.apply_validation_result import apply_validation_result
-from committee.util.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
-from committee.util.helpers import is_rule_name, get_rule_name
+from committee.constants import RULE_OK, VALID_INPUT, INVALID_INPUT
+from committee.helpers import is_rule_name, get_rule_name
 from committee.input_validator.input_validate_reposlug import input_validate_reposlug
 from committee.input_validator.input_validate_rule import input_validate_rule
 from committee.input_validator.input_validate_section_committee import input_validate_section_committee
