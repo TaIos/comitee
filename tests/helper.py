@@ -1,4 +1,4 @@
-import atexit
+import contextlib
 import datetime
 import os
 import pathlib
@@ -14,9 +14,28 @@ wordlists_dir = fixtures_dir / 'wordlists'
 run_timestamp = datetime.datetime.now().strftime("%y%m%d-%H%M%S")
 
 
-def run(line, **kwargs):
-    print('$ python committee.py', line)
-    command = [sys.executable, 'committee.py'] + shlex.split(line)
+@contextlib.contextmanager
+def env(**kwargs):
+    original = {key: os.getenv(key) for key in kwargs}
+    os.environ.update({key: str(value) for key, value in kwargs.items()})
+    try:
+        yield
+    finally:
+        for key, value in original.items():
+            if value is None:
+                del os.environ[key]
+            else:
+                os.environ[key] = value
+
+
+def run(line, entrypoint=False, **kwargs):
+    if entrypoint:
+        print('$ committee', line)
+        command = ['committee']
+    else:
+        print('$ python -m committee', line)
+        command = [sys.executable, '-m', 'committee']
+    command = command + shlex.split(line)
     return subprocess.run(command,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
@@ -26,9 +45,10 @@ def run(line, **kwargs):
 
 def run_ok(*args, **kwargs):
     cp = run(*args, **kwargs)
+    print(cp.stdout, end='')
+    print(cp.stderr, end='', file=sys.stderr)
     assert cp.returncode == 0
     assert not cp.stderr
-    print(cp.stdout)
     return cp
 
 
