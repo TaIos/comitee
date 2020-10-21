@@ -238,21 +238,21 @@ def create_app(config=None):
     def post_github_webhook():
 
         if 'X-Hub-Signature' not in request.headers or 'X-Github-Event' not in request.headers:
-            return __invalid_request_header()
+            return __invalid_request_header(), 400
 
         if not request.data:
-            return __empty_data()
+            return __empty_data(), 400
 
         if not __verify_signature(request.get_data(), request.headers.get('X-Hub-Signature'),
                                   app.config['secret'].encode()):
-            return __invalid_signature()
+            return __invalid_signature(), 400
 
         if request.headers.get('x-github-event') == 'ping':
-            return __github_ping()
+            return __github_ping(), 200
         elif request.headers.get('x-github-event') == 'push':
-            return __github_push(request.json, app.config['cfg_object'], request.base_url)
+            return __github_push(request.json, app.config['cfg_object'], request.base_url), 200
         else:
-            return __invalid_github_event()
+            return __invalid_github_event(), 400
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
