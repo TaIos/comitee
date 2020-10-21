@@ -211,15 +211,15 @@ def __configure_flask_app(app):
     cfg.read_string(data)
     cfg.config_path = os.path.dirname(app.config['config_path'])
 
-    if __validate_cfg(cfg) != VALID_INPUT or not cfg.has_option("github", "secret"):
+    if __validate_cfg(cfg) != VALID_INPUT:
         app.logger.error('Failed to load the configuration!')
         exit(1)
 
     app.config['cfg_object'] = cfg
-    app.config['secret'] = cfg['github']['secret']
     app.config['token'] = cfg['github']['token']
     app.config['context'] = cfg['committee']['context']
     app.config['rules'] = __load_rules(cfg)
+    app.config['secret'] = cfg['github'].get('secret')  # None if missing
 
     session = __create_auth_github_session(cfg)
     r = session.get(f'https://api.github.com/user')
@@ -241,10 +241,10 @@ def create_app(config=None):
             return __invalid_request_header(), 400
 
         if not request.data:
-            return __empty_data(), 400
+            return __empty_data(), 200
 
-        if not __verify_signature(request.get_data(), request.headers.get('X-Hub-Signature'),
-                                  app.config['secret'].encode()):
+        if app.config['secret'] and not __verify_signature(request.get_data(), request.headers.get('X-Hub-Signature'),
+                                                           app.config['secret'].encode()):
             return __invalid_signature(), 400
 
         if request.headers.get('x-github-event') == 'ping':
