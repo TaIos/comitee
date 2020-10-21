@@ -224,6 +224,7 @@ def __configure_flask_app(app):
     session = __create_auth_github_session(cfg)
     r = session.get(f'https://api.github.com/user')
     app.config['username'] = r.json()['name']
+    app.config['login'] = r.json()['login']
 
     app.logger.debug(
         f'Initialized flask with:  context={app.config["context"]}, username={app.config["username"]}')
@@ -255,7 +256,8 @@ def create_app(config=None):
 
     @app.route('/', methods=['GET'])
     def get_github_webhook():
-        return render_template('settings_page.html', context=app.config['context'], username=app.config['username'],
+        return render_template('settings_page.html', context=app.config['context'],
+                               username=app.config['username'] + ", " + app.config['login'],
                                rules=app.config['rules'])
 
     return app
