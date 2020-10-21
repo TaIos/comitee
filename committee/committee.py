@@ -237,7 +237,7 @@ def create_app(config=None):
     @app.route('/', methods=['POST'])
     def post_github_webhook():
 
-        if 'X-Hub-Signature' not in request.headers or 'X-Github-Event' not in request.headers:
+        if 'X-Github-Event' not in request.headers:
             return __invalid_request_header(), 400
 
         if not request.data:
@@ -258,6 +258,6 @@ def create_app(config=None):
     def get_github_webhook():
         return render_template('settings_page.html', context=app.config['context'],
                                username=app.config['username'] + ", " + app.config['login'],
-                               rules=app.config['rules'])
+                               rules=app.config['rules']), 200
 
     return app
