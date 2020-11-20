@@ -64,9 +64,9 @@ def __load_rules(cfg):
     return res
 
 
-def __create_auth_github_session(cfg):
+def __create_auth_github_session(cfg, session=None):
     """Create and return GitHub session authorized with token in configuration object"""
-    session = requests.Session()
+    session = session or requests.Session()
     token = cfg["github"]["token"]
 
     def token_auth(req):
