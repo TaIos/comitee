@@ -1,4 +1,6 @@
 include LICENSE
 include committee.example.cfg
 include tox.ini
-include test_my/*
+graft test_my
+global-exclude __pycache__
+global-exclude *.py[co]
