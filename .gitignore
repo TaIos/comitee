@@ -157,5 +157,6 @@ committee-*
 test.cfg
 export_flask
 test*/
+!/test_my/
 dist/
 test.py
