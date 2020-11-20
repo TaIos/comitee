@@ -14,7 +14,7 @@ setup(
     keywords='github,commit,git,flask',
     license='MIT License',
     url='https://github.com/TaIos/comitee',
-    packages=find_packages(),
+    packages=find_packages(exclude=['test_my']),
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
