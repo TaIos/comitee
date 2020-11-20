@@ -1,0 +1,3 @@
+[submodule "committee_reference"]
+	path = committee_reference
+	url = git@github.com:cvut/committee.git
