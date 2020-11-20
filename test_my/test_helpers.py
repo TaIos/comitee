@@ -1,5 +1,7 @@
 import pytest
 
+from committee.helpers import is_int
+
 
 @pytest.mark.parametrize("value", (0, -1, 5, 1000, "5", "-5"))
 def test_is_int_with_valid_integer_values(value):
