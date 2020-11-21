@@ -22,7 +22,13 @@ Skript vytvoří na GitHubu 3 repozitáře:
 Pokud by vám to vadilo, použijte testovací účet k tomuto určený.
 Commit status nelze na GitHub smazat, tudíž jedinou možností, jak vyčistit případný nepořádek je repozitáře smazat pomocí skriptu `test_my/test_environment/delete.sh` (potřeba scope `delete_repo`).
 
-Dále smažte všechny kazety v `test_my/fixtures/cassette_library`. Spuštěním `tox` se smazané kazety znovu nahrají.
+Dále smažte všechny kazety v `test_my/fixtures/cassette_library`.
+
+Spuštěním 
+```
+python -m pytest -v test_my/
+```
+se smazané kazety znovu nahrají a zároveň se spustí testy.
 
 
 

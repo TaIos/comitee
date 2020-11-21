@@ -193,22 +193,22 @@ def __empty_data():
     return jsonify({'error': 'no data', 'success': False})
 
 
-def __configure_flask_app(app):
+def __configure_flask_app(app, cfg=None, session=None):
     committee_config_rel = os.environ.get('COMMITTEE_CONFIG', None)
     if committee_config_rel is None:
         app.logger.error('COMMITTEE_CONFIG is not set.')
         exit(1)
     app.config['config_path'] = os.path.abspath(committee_config_rel)
 
-    try:
-        with open(app.config['config_path'], 'r') as file:
-            data = file.read()
-    except OSError:
-        app.logger.error(f'Could not open/read file: {app.config["config_path"]}')
-        exit(1)
-
-    cfg = configparser.ConfigParser()
-    cfg.read_string(data)
+    if cfg is None:
+        try:
+            with open(app.config['config_path'], 'r') as file:
+                data = file.read()
+        except OSError:
+            app.logger.error(f'Could not open/read file: {app.config["config_path"]}')
+            exit(1)
+        cfg = configparser.ConfigParser()
+        cfg.read_string(data)
     cfg.config_path = os.path.dirname(app.config['config_path'])
 
     if __validate_cfg(cfg) != VALID_INPUT:
@@ -221,7 +221,7 @@ def __configure_flask_app(app):
     app.config['rules'] = __load_rules(cfg)
     app.config['secret'] = cfg['github'].get('secret')  # None if missing
 
-    session = __create_auth_github_session(cfg)
+    session = session or __create_auth_github_session(cfg)
     r = session.get(f'https://api.github.com/user')
     app.config['username'] = r.json()['name']
     app.config['login'] = r.json()['login']
@@ -230,9 +230,9 @@ def __configure_flask_app(app):
         f'Initialized flask with:  context={app.config["context"]}, username={app.config["username"]}')
 
 
-def create_app(config=None):
+def create_app(cfg=None, session=None):
     app = Flask(__name__)
-    __configure_flask_app(app)
+    __configure_flask_app(app, cfg, session)
 
     @app.route('/', methods=['POST'])
     def post_github_webhook():
