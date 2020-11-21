@@ -1,17 +1,13 @@
 import pytest
-import os
 
 from helpers import *
+from committee.committee import __configure_flask_app
 
 
-@pytest.fixture
-def testapp(cfg, session):
-    from committee.committee import create_app
-    os.environ["COMMITTEE_CONFIG"] = "test_my/fixtures/config/config_basic.cfg"
-    app = create_app(cfg, session)
-    app.config["TESTING"] = True
-    return app.test_client()
-
-
-def test_hello(testapp):
-    assert "Hello" in testapp.get('/').get_data(as_text=True)
+@pytest.mark.parametrize("path", ["/invalid/path/absolute/config.cfg", "invalid/path/relative/config.cfg"])
+def test_configure_flask_app_with_invalid_configuration_path(testapp, path, capsys):
+    with env(COMMITTEE_CONFIG=path):
+        with pytest.raises(SystemExit):
+            __configure_flask_app(testapp)
+        out, err = capsys.readouterr()
+        assert "Invalid config file path." in out

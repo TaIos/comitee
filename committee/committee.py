@@ -4,6 +4,7 @@ import hmac
 import itertools
 import os
 import sys
+import pathlib
 
 import click
 import requests
@@ -196,8 +197,13 @@ def __empty_data():
 def __configure_flask_app(app, cfg=None, session=None):
     committee_config_rel = os.environ.get('COMMITTEE_CONFIG', None)
     if committee_config_rel is None:
-        app.logger.error('COMMITTEE_CONFIG is not set.')
+        print('COMMITTEE_CONFIG is not set.')
         exit(1)
+
+    if not pathlib.Path(committee_config_rel).is_file():
+        print('Invalid config file path.')
+        exit(1)
+
     app.config['config_path'] = os.path.abspath(committee_config_rel)
 
     if cfg is None:

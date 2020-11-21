@@ -1,6 +1,7 @@
 import pytest
 import configparser
 import os
+import contextlib
 
 from betamax import Betamax
 from committee.committee import __create_auth_github_session
@@ -36,3 +37,26 @@ def cfg():
 @pytest.fixture
 def session(cfg, betamax_parametrized_session):
     return __create_auth_github_session(cfg, betamax_parametrized_session)
+
+
+@pytest.fixture
+def testapp(cfg, session):
+    from committee.committee import create_app
+    os.environ["COMMITTEE_CONFIG"] = "test_my/fixtures/config/config_basic.cfg"
+    app = create_app(cfg, session)
+    app.config["TESTING"] = True
+    return app.test_client()
+
+
+@contextlib.contextmanager
+def env(**kwargs):
+    original = {key: os.getenv(key) for key in kwargs}
+    os.environ.update({key: str(value) for key, value in kwargs.items()})
+    try:
+        yield
+    finally:
+        for key, value in original.items():
+            if value is None:
+                del os.environ[key]
+            else:
+                os.environ[key] = value
