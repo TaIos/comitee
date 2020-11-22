@@ -48,6 +48,25 @@ def testapp(cfg, session):
     return app.test_client()
 
 
+@pytest.fixture
+def testapp_with_config(cfg, session):
+    """
+    Return FUNCTION that returns testing app, but with additional config set.
+    It is useful when parametrizing application secret.
+    """
+    from committee.committee import create_app
+    os.environ["COMMITTEE_CONFIG"] = "test_my/fixtures/config/config_basic.cfg"
+    app = create_app(cfg, session)
+    app.config["TESTING"] = True
+
+    def testapp_with_config_wrapper(**kwargs):
+        for key, val in kwargs.items():
+            app.config[key] = val
+        return app.test_client()
+
+    return testapp_with_config_wrapper
+
+
 @contextlib.contextmanager
 def env(**kwargs):
     original = {key: os.getenv(key) for key in kwargs}
